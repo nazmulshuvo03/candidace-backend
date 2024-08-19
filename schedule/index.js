@@ -18,13 +18,13 @@ schedule.scheduleJob("0 23 * * 0", () => {
   generateAvailabilityFromRecurrent();
 });
 
-schedule.scheduleJob("0 18 * * *", () => {
-  sendAllUserProfileCompletionReminder();
-});
+// schedule.scheduleJob("0 18 * * *", () => {
+//   sendAllUserProfileCompletionReminder();
+// });
 
-schedule.scheduleJob("0 23 * * 0", () => {
-  sendAllUserReactivationReminder();
-});
+// schedule.scheduleJob("0 23 * * 0", () => {
+//   sendAllUserReactivationReminder();
+// });
 
 // schedule.scheduleJob("* * * * *", () =>
 //   console.log("Schedule run ", new Date())
