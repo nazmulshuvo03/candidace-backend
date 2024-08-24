@@ -13,8 +13,12 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 const removeSpace = (str) => str.replace(/\s/g, "");
 
+const isNonEmptyString = (value) =>
+  typeof value === "string" && value.trim() !== "";
+
 module.exports = {
   generateUsername,
   capitalize,
   removeSpace,
+  isNonEmptyString,
 };
