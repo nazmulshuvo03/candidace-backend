@@ -12,7 +12,7 @@ const User = sequelize.define("user", {
   email: { type: DataTypes.STRING, allowNull: false, unique: true },
   password: { type: DataTypes.STRING, allowNull: true },
   type: {
-    type: DataTypes.ENUM("BASIC", "PREMIUM", "ADMIN"),
+    type: DataTypes.ENUM("BASIC", "AUTHOR", "ADMIN"),
     defaultValue: "BASIC",
   },
 });
