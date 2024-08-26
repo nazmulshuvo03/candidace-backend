@@ -64,9 +64,10 @@ const getBlogsByAuthor = asyncWrapper(async (req, res) => {
   const { authorId } = req.params;
   const askingUserId = res.locals.user?.id;
 
-  let whereCondition = { authorId, status: "published" };
-  if (askingUserId && askingUserId === authorId) {
-    whereCondition = { authorId };
+  // Fetch all blogs associated with this author
+  const whereCondition = { authorId };
+  if (authorId !== askingUserId) {
+    whereCondition.status = "published"; // Only show published blogs to other users
   }
 
   const blogs = await Blog.findAll({
@@ -79,7 +80,17 @@ const getBlogsByAuthor = asyncWrapper(async (req, res) => {
     return res.fail("No blogs found for this author", NOT_FOUND);
   }
 
-  res.success(blogs);
+  // Fetch the author's profile
+  const authorProfile = await Profile.findByPk(authorId);
+
+  if (!authorProfile) {
+    return res.fail("Author not found", NOT_FOUND);
+  }
+
+  res.success({
+    author: authorProfile,
+    blogs: blogs,
+  });
 });
 
 const createBlog = asyncWrapper(async (req, res) => {
@@ -237,10 +248,21 @@ const getAllCategories = asyncWrapper(async (req, res) => {
 const createCategory = asyncWrapper(async (req, res) => {
   const { name, slug } = req.body;
 
+  // Check if the category name already exists
+  const existingCategory = await Category.findOne({ where: { name } });
+  if (existingCategory) {
+    return res.success(existingCategory); // Return existing category
+  }
+
   // Slugify if not provided
   const categorySlug = slug || slugify(name, { lower: true });
 
-  const created = await Category.create({ name, slug: categorySlug });
+  const created = await Category.create({
+    name,
+    slug: categorySlug,
+    createdBy: res.locals.user.id,
+  });
+
   if (!created) return res.fail("Category could not be added");
   res.success(created);
 });
@@ -250,12 +272,20 @@ const updateCategory = asyncWrapper(async (req, res) => {
   const updatedData = req.body;
   if (!id) return res.fail("ID is not provided", BAD_REQUEST);
 
+  const found = await Category.findByPk(id);
+  if (!found) return res.fail("Category not found", NOT_FOUND);
+
+  // Ensure the user requesting the update is the creator
+  if (found.createdBy !== res.locals.user.id) {
+    return res.fail(
+      "You are not authorized to update this category",
+      FORBIDDEN
+    );
+  }
+
   if (updatedData.name) {
     updatedData.slug = slugify(updatedData.name, { lower: true });
   }
-
-  const found = await Category.findByPk(id);
-  if (!found) return res.fail("Category not found", NOT_FOUND);
 
   const updated = await found.update(updatedData);
   res.success(updated);
@@ -263,8 +293,46 @@ const updateCategory = asyncWrapper(async (req, res) => {
 
 const deleteCategory = asyncWrapper(async (req, res) => {
   const { id } = req.params;
+
+  const found = await Category.findByPk(id);
+  if (!found) return res.fail("Category not found", NOT_FOUND);
+
+  // Ensure the user requesting the deletion is the creator
+  if (found.createdBy !== res.locals.user.id) {
+    return res.fail(
+      "You are not authorized to delete this category",
+      FORBIDDEN
+    );
+  }
+
   await Category.destroy({ where: { id } });
   res.success("Deleted");
+});
+
+const getBlogsByCategorySlug = asyncWrapper(async (req, res) => {
+  const { slug } = req.params;
+
+  // Find the category by slug
+  const category = await Category.findOne({
+    where: { slug },
+    include: [{ model: Profile, as: "creator", foreignKey: "createdBy" }],
+  });
+
+  if (!category) {
+    return res.fail("Category not found", NOT_FOUND);
+  }
+
+  // Fetch all blogs associated with this category
+  const blogs = await Blog.findAll({
+    where: { categoryId: category.id, status: "published" },
+    include: [{ model: Profile, as: "profile" }], // Include the author's profile
+    order: [["createdAt", "DESC"]],
+  });
+
+  res.success({
+    category: category,
+    blogs: blogs,
+  });
 });
 
 module.exports = {
@@ -279,4 +347,5 @@ module.exports = {
   createCategory,
   updateCategory,
   deleteCategory,
+  getBlogsByCategorySlug,
 };

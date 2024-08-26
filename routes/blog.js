@@ -11,6 +11,7 @@ const {
   updateCategory,
   deleteCategory,
   getBlogsByAuthor,
+  getBlogsByCategorySlug,
 } = require("../controllers/blog");
 const { requireAuth } = require("../middlewares/auth");
 
@@ -21,6 +22,7 @@ router
   .route("/categories")
   .get(getAllCategories)
   .post(requireAuth, createCategory);
+router.route("/categories/:slug").get(getBlogsByCategorySlug);
 router
   .route("/categories/:id")
   .put(requireAuth, updateCategory)

@@ -19,6 +19,14 @@ const Category = sequelize.define("category", {
     allowNull: false,
     unique: true,
   },
+  createdBy: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: Profile,
+      key: "id",
+    },
+  },
 });
 
 const Blog = sequelize.define("blog", {
@@ -90,6 +98,11 @@ Blog.belongsTo(Profile, { foreignKey: "authorId" });
 
 Category.hasMany(Blog, { foreignKey: "categoryId" });
 Blog.belongsTo(Category, { foreignKey: "categoryId" });
+
+Category.belongsTo(Profile, {
+  as: "creator",
+  foreignKey: "createdBy",
+});
 
 module.exports = {
   Blog,
