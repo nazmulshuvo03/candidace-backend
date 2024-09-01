@@ -230,10 +230,14 @@ const getAllCategories = asyncWrapper(async (req, res) => {
   const { page = 1, pageSize = 10 } = req.query;
   const { offset, limit } = paginate(page, pageSize);
 
-  const categories = await Category.findAndCountAll({
-    offset,
-    limit,
-  });
+  const categories = await Category.findAndCountAll(
+    req.query.pageSize
+      ? {
+          offset,
+          limit,
+        }
+      : {}
+  );
 
   res.success({
     data: categories.rows,
@@ -247,6 +251,8 @@ const getAllCategories = asyncWrapper(async (req, res) => {
 
 const createCategory = asyncWrapper(async (req, res) => {
   const { name, slug } = req.body;
+
+  if (!name) return res.fail("Name is required", BAD_REQUEST);
 
   // Check if the category name already exists
   const existingCategory = await Category.findOne({ where: { name } });
