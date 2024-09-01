@@ -94,7 +94,7 @@ const getBlogsByAuthor = asyncWrapper(async (req, res) => {
 });
 
 const createBlog = asyncWrapper(async (req, res) => {
-  const { title, content, categoryId } = req.body;
+  const { title, content, categoryId, excerpt, featuredImage } = req.body;
   const authorId = res.locals.user.id;
 
   // Validate blog data
@@ -141,6 +141,8 @@ const createBlog = asyncWrapper(async (req, res) => {
   const created = await Blog.create({
     title,
     content,
+    excerpt,
+    featuredImage,
     categoryId,
     authorId,
     slug,

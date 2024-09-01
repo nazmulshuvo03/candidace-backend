@@ -68,14 +68,6 @@ const Blog = sequelize.define("blog", {
     type: DataTypes.ENUM("draft", "published", "pending"),
     defaultValue: "draft",
   },
-  commentsEnabled: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
-  },
-  seoMetaDescription: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
   authorId: {
     type: DataTypes.UUID,
     allowNull: false,
