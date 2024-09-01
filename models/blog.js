@@ -56,6 +56,8 @@ const Blog = sequelize.define("blog", {
   featuredImage: {
     type: DataTypes.STRING, // URL to the image
     allowNull: true,
+    defaultValue:
+      "https://candidace-public-storage.s3.ap-south-1.amazonaws.com/default_blog.jpeg",
   },
   tags: {
     type: DataTypes.ARRAY(DataTypes.STRING), // Array of tags/keywords
