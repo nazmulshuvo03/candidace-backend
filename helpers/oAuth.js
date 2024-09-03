@@ -17,6 +17,7 @@ const createOAuthClient = async () => {
       client_secret,
       redirect_uris[0]
     );
+    console.log("o auth client created: ", oAuth2Client);
     return oAuth2Client;
   } catch (err) {
     console.error("Error creating OAuth client:", err);

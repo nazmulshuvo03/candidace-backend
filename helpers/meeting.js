@@ -14,10 +14,13 @@ const getMeetingAuthentication = async () => {
   try {
     const tokenContent = await fs.promises.readFile(TOKEN_PATH);
     const parsedToken = JSON.parse(tokenContent);
+    console.log("parsed token: ", parsedToken);
     const oAuthClient = await createOAuthClient();
+    console.log("o auth client: ", oAuthClient);
     oAuthClient.setCredentials(parsedToken);
     return oAuthClient;
   } catch (err) {
+    console.log("create o auth client error: ", err);
     if (err.code === "ENOENT") {
       const oAuthUrl = await generateOAuthURL();
       return { redirect: true, redirectUrl: oAuthUrl };
@@ -52,6 +55,7 @@ const performMeetingInsert = async (event) => {
       // meetLink: response.data.hangoutLink,
     };
   } catch (err) {
+    // console.log("Meeting insert error: ", err);
     return err;
   }
 };
@@ -81,6 +85,12 @@ const createEvent = async (
     attendees: [{ email: initiator }, { email: acceptor }],
   };
   const insertResponse = await performMeetingInsert(event);
+  console.log(
+    "meeting insert response",
+    insertResponse.message,
+    insertResponse.errors,
+    insertResponse.status
+  );
   if (insertResponse.message === "Invalid Credentials") {
     await getAccessTokenFromRefreshToken();
     return performMeetingInsert(event);

@@ -99,6 +99,7 @@ const createMeetingData = asyncWrapper(async (req, res) => {
   const initiatorProfile = await _getUserProfile(availabilityData.userId);
 
   const meetingData = await createMeeting();
+
   if (meetingData.error)
     return res.fail(`Meeting creation error: ${meetingData.error}`);
 
@@ -110,28 +111,30 @@ const createMeetingData = asyncWrapper(async (req, res) => {
     acceptorUserId: acceptorProfile.dataValues.id,
   };
 
-  const createdEvent = await createEvent(
-    initiatorProfile.dataValues.email,
-    acceptorProfile.dataValues.email,
-    availabilityData.dataValues,
-    meetingProps
-  );
+  // const createdEvent = await createEvent(
+  //   initiatorProfile.dataValues.email,
+  //   acceptorProfile.dataValues.email,
+  //   availabilityData.dataValues,
+  //   meetingProps
+  // );
 
-  if (!createdEvent.created) {
-    if (createdEvent.redirect) {
-      return res.fail(createdEvent.redirectUrl);
-    } else {
-      return res.fail(createdEvent.message);
-    }
-  }
+  // console.log("created event: ", createEvent);
+
+  // if (!createdEvent.created) {
+  //   if (createdEvent.redirect) {
+  //     return res.fail(createdEvent.redirectUrl);
+  //   } else {
+  //     return res.fail(createdEvent.message);
+  //   }
+  // }
 
   const model = {
     initiator: availabilityData.userId,
     acceptor: acceptorId,
     dayHour: parseInt(availabilityData.dayHour),
     dayHourUTC: availabilityData.dayHourUTC,
-    event: createdEvent.eventLink,
-    eventId: createdEvent.eventId,
+    // event: createdEvent.eventLink,
+    // eventId: createdEvent.eventId,
     meet: meetingData.meeting,
     practiceAreas: availabilityData.practiceAreas,
     interviewNote: availabilityData.interviewNote,
