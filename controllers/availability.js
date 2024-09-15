@@ -7,6 +7,7 @@ const {
 const { profileCompletionStatus } = require("../helpers/user");
 const MIXPANEL_TRACK = require("../helpers/mixpanel");
 const { getDateOfIndexDay } = require("../helpers/timeDate");
+const { BAD_REQUEST } = require("../constants/errorCodes");
 
 const _getAvailabilityById = async (id) => {
   const found = await Availability.findByPk(id);
@@ -48,7 +49,7 @@ const _createAvailability = async (data, sendFailMessage = false) => {
       id: data.userId,
     });
     created.dataValues.completionStatus = await profileCompletionStatus(
-      data.userId
+      data.userId,
     );
     return created;
   } else return error;
@@ -61,7 +62,7 @@ const getAllAvailabilityData = asyncWrapper(async (req, res) => {
 
 const getUserAvailability = asyncWrapper(async (req, res) => {
   const { userId } = req.params;
-  if (!userId) res.fail("Invalid user ID", BAD_REQUEST);
+  if (!userId) return res.fail("Invalid user ID", BAD_REQUEST);
   const today = new Date().getTime();
   const data = await Availability.findAll({
     where: {
@@ -94,7 +95,7 @@ const createAvailabilityData = asyncWrapper(async (req, res) => {
 
 const deleteAvailabilityData = asyncWrapper(async (req, res) => {
   const { avaiabilityId } = req.params;
-  if (!avaiabilityId) res.fail("Invalid availability ID", BAD_REQUEST);
+  if (!avaiabilityId) return res.fail("Invalid availability ID", BAD_REQUEST);
   const found = await Availability.findOne({ where: { id: avaiabilityId } });
   found.destroy();
   MIXPANEL_TRACK({
@@ -123,7 +124,9 @@ const createRecurrentData = asyncWrapper(async (req, res) => {
   };
   const createdRec = await RecurrentAvailability.create(model);
   if (!createdRec)
-    res.fail("Recurrent Availability data could not be created for this user");
+    return res.fail(
+      "Recurrent Availability data could not be created for this user",
+    );
 
   const dayHourUTC = getDateOfIndexDay(weekday, hour, timezone);
   const dayHour = dayHourUTC.getTime();
@@ -154,7 +157,7 @@ const getRecurrentData = asyncWrapper(async (req, res) => {
 
 const deleteRecurrentData = asyncWrapper(async (req, res) => {
   const { recurrentId } = req.params;
-  if (!recurrentId) res.fail("Invalid content ID", BAD_REQUEST);
+  if (!recurrentId) return res.fail("Invalid content ID", BAD_REQUEST);
   const found = await RecurrentAvailability.findOne({
     where: { id: recurrentId },
   });

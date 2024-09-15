@@ -16,7 +16,7 @@ const successResponse = (res, data = {}, statusCode = 200) => {
 const failResponse = (
   res,
   data = "Internal Server Error",
-  statusCode = SERVER_ERROR
+  statusCode = SERVER_ERROR,
 ) => {
   const response = new Response(data, statusCode);
   res.status(statusCode).json(response);
