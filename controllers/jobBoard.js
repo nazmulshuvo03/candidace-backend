@@ -37,10 +37,31 @@ async function _searchOrCreate(data) {
   return found;
 }
 
-const getAllJobs = asyncWrapper(async (_req, res) => {
+const getAllJobs = asyncWrapper(async (req, res) => {
+  const { searchTerm, page = 1, limit = 10 } = req.query;
+
+  let filters = {};
+
+  // Apply searchTerm to both jobTitle and companyName fields
+  if (searchTerm) {
+    filters = {
+      [Sequelize.Op.or]: [
+        { jobTitle: { [Sequelize.Op.iLike]: `%${searchTerm}%` } }, // case-insensitive search in jobTitle
+        { companyName: { [Sequelize.Op.iLike]: `%${searchTerm}%` } }, // case-insensitive search in companyName
+      ],
+    };
+  }
+
+  // Pagination logic
+  const offset = (page - 1) * limit;
+
   const data = await JobBoard.findAll({
+    where: filters,
     order: [["datePosted", "DESC"]],
+    limit: parseInt(limit, 10), // Limit the number of results per page
+    offset: parseInt(offset, 10), // Skip results based on the current page
   });
+
   res.success(data);
 });
 
