@@ -4,7 +4,7 @@ const { convertRelativeTimeToISO } = require("../helpers/timeDate"); // Import y
 
 // Scraper function for WeWorkRemotely jobs using Axios and Cheerio
 async function scrapeJobsFromWeWorkRemotely() {
-  const url = "https://weworkremotely.com/remote-jobs";
+  const url = "https://weworkremotely.com";
 
   try {
     // Make a request with browser-like headers to avoid being blocked

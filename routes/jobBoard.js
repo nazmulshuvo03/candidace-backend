@@ -8,7 +8,7 @@ const {
 const router = Router();
 
 router.route("/:jobId").delete(deleteJobData);
-router.route("/").get(scrapeAndPost).post(createJobData);
+router.route("/").get(getAllJobs).post(createJobData);
 router.route("/scrape").get(scrapeAndPost);
 
 module.exports = router;

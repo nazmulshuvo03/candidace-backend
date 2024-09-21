@@ -1,3 +1,4 @@
+const { Sequelize } = require("sequelize");
 const asyncWrapper = require("../middlewares/async");
 const { JobBoard } = require("../models/jobBoard");
 const { BAD_REQUEST } = require("../constants/errorCodes");
@@ -14,8 +15,32 @@ function _isDuplicate(jobs, newJob) {
   );
 }
 
+async function _searchOrCreate(data) {
+  const startOfDay = new Date(data.datePosted);
+  startOfDay.setUTCHours(0, 0, 0, 0); // Set time to start of the day (00:00:00)
+
+  const endOfDay = new Date(data.datePosted);
+  endOfDay.setUTCHours(23, 59, 59, 999); // Set time to end of the day (23:59:59)
+
+  const found = await JobBoard.findOne({
+    where: {
+      jobTitle: data.jobTitle,
+      companyName: data.companyName,
+      datePosted: {
+        [Sequelize.Op.between]: [startOfDay, endOfDay],
+      },
+    },
+  });
+  if (!found) {
+    await JobBoard.create(data);
+  }
+  return found;
+}
+
 const getAllJobs = asyncWrapper(async (_req, res) => {
-  const data = await JobBoard.findAll();
+  const data = await JobBoard.findAll({
+    order: [["datePosted", "DESC"]],
+  });
   res.success(data);
 });
 
@@ -33,22 +58,31 @@ const deleteJobData = asyncWrapper(async (req, res) => {
   res.success("Deleted");
 });
 
-const scrapeAndPost = asyncWrapper(async (req, res) => {
+const scrapeAndPost = asyncWrapper(async (_req, res) => {
   const remoteOKJobs = await scrapeJobsFromRemoteOK();
   const weWorkRemotelyJobs = await scrapeJobsFromWeWorkRemotely();
   const remoteCoJobs = await scrapeJobsFromRemoteCo();
 
-  let allJobs = [];
+  const dataLength = {
+    remoteOk: remoteOKJobs.length,
+    weWorkRemotely: weWorkRemotelyJobs.length,
+    remoteCo: remoteCoJobs.length,
+    total:
+      remoteOKJobs.length + weWorkRemotelyJobs.length + remoteCoJobs.length,
+  };
+
+  // let allJobs = [];
 
   // Combine jobs, ensuring no duplicates
   [remoteOKJobs, weWorkRemotelyJobs, remoteCoJobs].forEach((jobArray) => {
     jobArray.forEach((job) => {
-      if (!_isDuplicate(allJobs, job)) {
-        allJobs.push(job);
-      }
+      // if (!_isDuplicate(allJobs, job)) {
+      //   allJobs.push(job);
+      // }
+      _searchOrCreate(job);
     });
   });
-  res.success(allJobs);
+  res.success(dataLength);
 });
 
 module.exports = {

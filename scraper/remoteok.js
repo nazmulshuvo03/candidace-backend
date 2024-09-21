@@ -1,6 +1,6 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
-const moment = require("moment"); // Import moment.js for date formatting
+const moment = require("moment");
 
 // Scraper function for RemoteOK jobs
 async function scrapeJobsFromRemoteOK() {
