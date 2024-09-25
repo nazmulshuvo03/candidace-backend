@@ -7,12 +7,28 @@ const scrapeJobsFromWeWorkRemotely = require("../scraper/weworkremotely");
 const scrapeJobsFromRemoteCo = require("../scraper/remoteco");
 
 // Utility function to check if the job is a duplicate
-function _isDuplicate(jobs, newJob) {
-  return jobs.some(
-    (job) =>
-      job.jobTitle === newJob.jobTitle &&
-      job.companyName === newJob.companyName,
-  );
+async function _refreshJobBoardData() {
+  console.log("Refreshing job board data");
+  const remoteOKJobs = await scrapeJobsFromRemoteOK();
+  const weWorkRemotelyJobs = await scrapeJobsFromWeWorkRemotely();
+  const remoteCoJobs = await scrapeJobsFromRemoteCo();
+
+  const dataLength = {
+    remoteOk: remoteOKJobs.length,
+    weWorkRemotely: weWorkRemotelyJobs.length,
+    remoteCo: remoteCoJobs.length,
+    total:
+      remoteOKJobs.length + weWorkRemotelyJobs.length + remoteCoJobs.length,
+  };
+
+  // Combine jobs, ensuring no duplicates
+  [remoteOKJobs, weWorkRemotelyJobs, remoteCoJobs].forEach((jobArray) => {
+    jobArray.forEach(async (job) => {
+      await _searchOrCreate(job);
+    });
+  });
+
+  return dataLength;
 }
 
 async function _searchOrCreate(data) {
@@ -55,7 +71,7 @@ const getAllJobs = asyncWrapper(async (req, res) => {
   // Pagination logic
   const offset = (page - 1) * limit;
 
-  const data = await JobBoard.findAll({
+  const data = await JobBoard.findAndCountAll({
     where: filters,
     order: [["datePosted", "DESC"]],
     limit: parseInt(limit, 10), // Limit the number of results per page
@@ -80,33 +96,12 @@ const deleteJobData = asyncWrapper(async (req, res) => {
 });
 
 const scrapeAndPost = asyncWrapper(async (_req, res) => {
-  const remoteOKJobs = await scrapeJobsFromRemoteOK();
-  const weWorkRemotelyJobs = await scrapeJobsFromWeWorkRemotely();
-  const remoteCoJobs = await scrapeJobsFromRemoteCo();
-
-  const dataLength = {
-    remoteOk: remoteOKJobs.length,
-    weWorkRemotely: weWorkRemotelyJobs.length,
-    remoteCo: remoteCoJobs.length,
-    total:
-      remoteOKJobs.length + weWorkRemotelyJobs.length + remoteCoJobs.length,
-  };
-
-  // let allJobs = [];
-
-  // Combine jobs, ensuring no duplicates
-  [remoteOKJobs, weWorkRemotelyJobs, remoteCoJobs].forEach((jobArray) => {
-    jobArray.forEach((job) => {
-      // if (!_isDuplicate(allJobs, job)) {
-      //   allJobs.push(job);
-      // }
-      _searchOrCreate(job);
-    });
-  });
+  const dataLength = await _refreshJobBoardData();
   res.success(dataLength);
 });
 
 module.exports = {
+  _refreshJobBoardData,
   getAllJobs,
   createJobData,
   deleteJobData,

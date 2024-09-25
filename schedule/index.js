@@ -6,6 +6,7 @@ const {
   sendAllUserProfileCompletionReminder,
   sendAllUserReactivationReminder,
 } = require("../controllers/scheduleEmails");
+const { _refreshJobBoardData } = require("../controllers/jobBoard");
 
 /**
   0 for minute (0th minute)
@@ -29,5 +30,9 @@ schedule.scheduleJob("0 23 * * 0", () => {
 // schedule.scheduleJob("* * * * *", () =>
 //   console.log("Schedule run ", new Date())
 // );
+
+schedule.scheduleJob("0 0 * * *", () => {
+  _refreshJobBoardData();
+});
 
 module.exports = schedule;

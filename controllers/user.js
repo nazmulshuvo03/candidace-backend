@@ -198,7 +198,7 @@ const updateUserProfile = asyncWrapper(async (req, res) => {
   let updatedUser = await _updateUserProfile(res, userId, req.body);
   if (updatedUser) {
     updatedUser.dataValues.completionStatus = await profileCompletionStatus(
-      updatedUser.id
+      updatedUser.id,
     );
     res.success(updatedUser);
   }
