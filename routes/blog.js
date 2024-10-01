@@ -14,8 +14,13 @@ const {
   getBlogsByCategorySlug,
 } = require("../controllers/blog");
 const { requireAuth } = require("../middlewares/auth");
+const { getSitemap, getRobotsTxt } = require("../controllers/blogStatic");
 
 const router = Router();
+
+// Static routes
+router.get("/sitemap.xml", getSitemap);
+router.get("/robots.txt", getRobotsTxt);
 
 // Category Routes
 router

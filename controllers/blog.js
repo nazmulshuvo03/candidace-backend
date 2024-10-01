@@ -21,6 +21,12 @@ const validateBlogData = (data) => {
   return errors;
 };
 
+const generateExcerpt = (content, maxLength = 160) => {
+  return content.length > maxLength
+    ? content.slice(0, maxLength) + "..."
+    : content;
+};
+
 const getAllBlogs = asyncWrapper(async (req, res) => {
   const { page = 1, pageSize = 10, category, search } = req.query;
   const { offset, limit } = paginate(page, pageSize);
@@ -108,7 +114,7 @@ const createBlog = asyncWrapper(async (req, res) => {
     if (!categoryExists) {
       return res.fail(
         "Category does not exist. Please select a valid category.",
-        BAD_REQUEST
+        BAD_REQUEST,
       );
     }
   } else return res.fail("Category is not selected.", BAD_REQUEST);
@@ -138,10 +144,15 @@ const createBlog = asyncWrapper(async (req, res) => {
     slug = `${baseSlug}-${nextNumber}`;
   }
 
+  let finalExcerpt = excerpt;
+  if (!finalExcerpt) {
+    finalExcerpt = generateExcerpt(content);
+  }
+
   const created = await Blog.create({
     title,
     content,
-    excerpt,
+    excerpt: finalExcerpt,
     featuredImage,
     categoryId,
     authorId,
@@ -238,7 +249,7 @@ const getAllCategories = asyncWrapper(async (req, res) => {
           offset,
           limit,
         }
-      : {}
+      : {},
   );
 
   res.success({
@@ -287,7 +298,7 @@ const updateCategory = asyncWrapper(async (req, res) => {
   if (found.createdBy !== res.locals.user.id) {
     return res.fail(
       "You are not authorized to update this category",
-      FORBIDDEN
+      FORBIDDEN,
     );
   }
 
@@ -309,7 +320,7 @@ const deleteCategory = asyncWrapper(async (req, res) => {
   if (found.createdBy !== res.locals.user.id) {
     return res.fail(
       "You are not authorized to delete this category",
-      FORBIDDEN
+      FORBIDDEN,
     );
   }
 
