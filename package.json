@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app",
-    "dev": "cross-env NODE_ENV=local nodemon -e js,ejs,json app",
-    "prod": "cross-env NODE_ENV=prod node app"
+    "dev": "nodemon -e js,ejs,json app",
+    "prod": "node app"
   },
   "keywords": [],
   "author": "",
@@ -39,6 +39,6 @@
     "connect-livereload": "^0.6.1",
     "cross-env": "^7.0.3",
     "livereload": "^0.9.3",
-    "nodemon": "^3.0.3"
+    "nodemon": "^3.1.10"
   }
 }

@@ -3,8 +3,10 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const http = require("http");
+const dotenv = require("dotenv");
 
-const config = require("./config");
+dotenv.config();
+
 const Routes = require("./routes");
 const sequelize = require("./db");
 const { responseMiddleware } = require("./middlewares/Response");
@@ -16,7 +18,7 @@ const { initSocket } = require("./socket");
 
 const app = express();
 const server = http.createServer(app);
-const port = config.PORT;
+const port = process.env.PORT;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
