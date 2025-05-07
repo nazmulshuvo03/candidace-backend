@@ -8,7 +8,8 @@ const {
 } = require("./oAuth");
 const { getMeetingEmailTemplate } = require("./emails");
 
-const TOKEN_PATH = "./token.json";
+// const TOKEN_PATH = "./token.json";
+const TOKEN_PATH = "";
 
 const getMeetingAuthentication = async () => {
   try {

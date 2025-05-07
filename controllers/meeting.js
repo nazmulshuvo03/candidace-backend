@@ -103,13 +103,13 @@ const createMeetingData = asyncWrapper(async (req, res) => {
   if (meetingData.error)
     return res.fail(`Meeting creation error: ${meetingData.error}`);
 
-  const meetingProps = {
-    meetingLink: meetingData.meeting,
-    initiatorUserName: initiatorProfile.dataValues.userName,
-    initiatorUserId: initiatorProfile.dataValues.id,
-    acceptorUserName: acceptorProfile.dataValues.userName,
-    acceptorUserId: acceptorProfile.dataValues.id,
-  };
+  // const meetingProps = {
+  //   meetingLink: meetingData.meeting,
+  //   initiatorUserName: initiatorProfile.dataValues.userName,
+  //   initiatorUserId: initiatorProfile.dataValues.id,
+  //   acceptorUserName: acceptorProfile.dataValues.userName,
+  //   acceptorUserId: acceptorProfile.dataValues.id,
+  // };
 
   // const createdEvent = await createEvent(
   //   initiatorProfile.dataValues.email,

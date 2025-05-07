@@ -1,11 +1,15 @@
 const axios = require("axios");
 const { google } = require("googleapis");
 const fs = require("fs");
-const keys = require("../keys.json");
+// const keys = require("../keys.json");
 
-const CLIENTS_SECRET_FILE_PATH = "./keys.json";
-const TOKEN_PATH = "./token.json";
-const REFRESH_TOKEN_PATH = "./refresh_token.json";
+// const CLIENTS_SECRET_FILE_PATH = "./keys.json";
+// const TOKEN_PATH = "./token.json";
+// const REFRESH_TOKEN_PATH = "./refresh_token.json";
+
+const CLIENTS_SECRET_FILE_PATH = "";
+const TOKEN_PATH = "";
+const REFRESH_TOKEN_PATH = "";
 
 const createOAuthClient = async () => {
   try {
@@ -80,8 +84,8 @@ const getAccessTokenFromAuth = (authCode) => {
 const getAccessTokenFromRefreshToken = async () => {
   const ref_token = require("../refresh_token.json");
   const data = {
-    client_id: keys.web.client_id,
-    client_secret: keys.web.client_secret,
+    // client_id: keys.web.client_id,
+    // client_secret: keys.web.client_secret,
     refresh_token: ref_token.refresh_token,
     grant_type: "refresh_token",
   };
