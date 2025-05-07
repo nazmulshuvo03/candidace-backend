@@ -18,7 +18,7 @@ const { initSocket } = require("./socket");
 
 const app = express();
 const server = http.createServer(app);
-const port = process.env.PORT;
+const port = process.env.PORT || 4000;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
